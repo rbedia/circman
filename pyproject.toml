@@ -18,6 +18,8 @@ Changelog = "https://github.com/rbedia/circman/releases"
 [tool.poetry.dependencies]
 python = "^3.8"
 click = ">=8.0.1"
+setuptools = "^67.4.0"
+platformdirs = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"

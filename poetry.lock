@@ -974,7 +974,7 @@ flake8 = ">=5.0.0"
 name = "platformdirs"
 version = "3.0.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1337,7 +1337,7 @@ gitlab = ["python-gitlab (>=1.3.0)"]
 name = "setuptools"
 version = "67.4.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -1771,4 +1771,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "4e36a28d2a3ede324731dcaa737f1cd7b9273e98622ffc62efca7696f1c85c62"
+content-hash = "32458e345b4467cda6b0e3f35d5a6f816c2af87ab6041ca21e184e725417ef96"
