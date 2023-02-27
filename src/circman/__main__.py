@@ -5,7 +5,7 @@ import click
 @click.command()
 @click.version_option()
 def main() -> None:
-    """CircuitPython Manager."""
+    """Manager for CircuitPython deployment."""
 
 
 if __name__ == "__main__":
