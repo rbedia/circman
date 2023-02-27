@@ -8,6 +8,7 @@ import sys
 from distutils.dir_util import copy_tree
 from pathlib import Path
 from subprocess import check_output  # noqa: S404
+from typing import Any
 from typing import List
 from typing import Optional
 
@@ -72,7 +73,7 @@ def find_device() -> Optional[str]:
 class DeviceCommand(click.Command):
     """Options shared by commands that need a valid device."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Create a command with standard options."""
         super().__init__(*args, **kwargs)
         self.params.insert(
@@ -116,7 +117,7 @@ def list() -> None:
 @click.option(
     "-a", "--archive", default=1, type=int, help="number of backup to restore"
 )
-def restore(device, archive) -> None:
+def restore(device: str, archive: int) -> None:
     """Restore a backup."""
     archive_files = find_archive_files()
     if not archive_files:
@@ -140,7 +141,7 @@ def find_archive_files() -> List[str]:
     return sorted(glob.glob(glob.escape(BACKUP_DIR) + "/*.tar.bz2"))
 
 
-def backup(device) -> None:
+def backup(device: str) -> None:
     """Backup up the device directory."""
     now = datetime.datetime.now()
     archive_file = os.path.join(BACKUP_DIR, f"archive-{now:%Y%m%d_%H%M%S}")
@@ -158,7 +159,7 @@ def backup(device) -> None:
     type=click.Path(exists=True, file_okay=False, readable=True),
     help="directory to deploy",
 )
-def deploy(device, source) -> None:
+def deploy(device: str, source: str) -> None:
     """Copy the source directory to the device directory."""
     backup(device)
     logger.info(f"Deploying {source} to {device}")
