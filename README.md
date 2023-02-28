@@ -51,23 +51,23 @@ project source code to be in "src/" relative to the project directory.
 
 Then run the deploy.
 
-~~~console
+```console
 $ circman deploy
-~~~
+```
 
 A backup of the CircuitPython device will be created and then the project source code will be copied to the CircuitPython device.
 
 If you need to restore the code from before the deploy use the restore command.
 
-~~~console
+```console
 $ circman restore
-~~~
+```
 
 To list all available backups:
 
-~~~console
+```console
 $ circman list
-~~~
+```
 
 ## Usage
 
