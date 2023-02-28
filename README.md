@@ -41,6 +41,34 @@ You can install _CircuitPython Manager_ via [pip] from [PyPI]:
 $ pip install circman
 ```
 
+## Quick Start
+
+Connect your CircuitPython device to your computer using USB and wait for the
+mount to appear.
+
+Change to the directory of your CircuitPython project. The default is for the
+project source code to be in "src/" relative to the project directory.
+
+Then run the deploy.
+
+~~~console
+$ circman deploy
+~~~
+
+A backup of the CircuitPython device will be created and then the project source code will be copied to the CircuitPython device.
+
+If you need to restore the code from before the deploy use the restore command.
+
+~~~console
+$ circman restore
+~~~
+
+To list all available backups:
+
+~~~console
+$ circman list
+~~~
+
 ## Usage
 
 Please see the [Command-line Reference] for details.
