@@ -21,13 +21,17 @@
 [pre-commit]: https://github.com/pre-commit/pre-commit
 [black]: https://github.com/psf/black
 
+CircuitPython Manager helps with deploying projects to CircuitPython devices.
+
 ## Features
 
-- TODO
+- Automatically detects CircuitPython device path.
+- Backs up the CircuitPython device before deploying to allow recovery.
+- Simple command to restore a backup to the CircuitPython device in case something goes wrong.
 
 ## Requirements
 
-- TODO
+- Linux. May work elsewhere but not tested.
 
 ## Installation
 
@@ -58,8 +62,11 @@ please [file an issue] along with a detailed description.
 
 ## Credits
 
+Device path detection code (`find_device()`) was copied from Adafruit's [circup] project.
+
 This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
 
+[circup]: https://github.com/adafruit/circup
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/
 [hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python

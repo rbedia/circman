@@ -91,7 +91,7 @@ class DeviceCommand(click.Command):
 @click.group()
 @click.version_option()
 def main() -> None:
-    """Manager for CircuitPython deployment."""
+    """Manager for CircuitPython project deployment."""
 
 
 @main.command()
