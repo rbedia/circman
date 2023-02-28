@@ -97,7 +97,6 @@ def test_list_show_backups(
     with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
         "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
     ):
-
         make_mock_directories(td)
         backup1, backup2 = make_mock_backups(td)
 
@@ -112,7 +111,6 @@ def test_restore_no_device(runner: CliRunner, tmp_path: Path) -> None:
     with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
         "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
     ):
-
         result = runner.invoke(__main__.main, "restore")
         assert result.exit_code == 2
         assert "Error: Missing option '-d' / '--device'." in result.output
