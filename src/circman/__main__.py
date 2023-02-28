@@ -83,7 +83,7 @@ class DeviceCommand(click.Command):
                 required=True,
                 type=click.Path(exists=True, file_okay=False, writable=True),
                 default=find_device(),
-                help="CIRCUITPY path",
+                help="CIRCUITPY path. If not provided, autodiscovery is attempted.",
             ),
         )
 
@@ -115,7 +115,13 @@ def list() -> None:
 
 @main.command(cls=DeviceCommand)
 @click.option(
-    "-a", "--archive", default=1, type=int, help="number of backup to restore"
+    "-a",
+    "--archive",
+    default=1,
+    type=int,
+    help="""Number of backup to restore.
+    Use the list command to find the backup number.
+    Defaults to restoring the most recent backup.""",
 )
 def restore(device: str, archive: int) -> None:
     """Restore a backup."""
@@ -157,7 +163,7 @@ def backup(device: str) -> None:
     default="src",
     required=True,
     type=click.Path(exists=True, file_okay=False, readable=True),
-    help="directory to deploy",
+    help='Directory to deploy. Defaults to "src".',
 )
 def deploy(device: str, source: str) -> None:
     """Copy the source directory to the device directory."""
