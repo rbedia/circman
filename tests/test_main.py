@@ -17,9 +17,10 @@ SRC_DIR = "src"
 
 
 @pytest.fixture
-def runner() -> CliRunner:
+def runner() -> Iterator[CliRunner]:
     """Fixture for invoking command-line interfaces."""
-    return CliRunner()
+    with mock.patch("circman.__main__.find_device", return_value=None):
+        yield CliRunner()
 
 
 def test_main_succeeds(runner: CliRunner) -> None:
