@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "circman"
-version = "0.2.0"
+version = "0.3.0"
 description = "CircuitPython Manager"
 authors = ["Rafael Bedia <rafael.bedia@gmail.com>"]
 license = "MIT"
