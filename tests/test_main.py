@@ -15,6 +15,9 @@ BACKUP_DIR = "backups"
 DEST_DIR = "dest"
 SRC_DIR = "src"
 
+# Remove the log file handler to prevent logging to disk
+__main__.logger.removeHandler(__main__.logfile_handler)
+
 
 @pytest.fixture
 def runner() -> Iterator[CliRunner]:
