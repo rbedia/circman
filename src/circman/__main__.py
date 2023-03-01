@@ -150,6 +150,27 @@ def deploy(device: str, source: str) -> None:
     copy_tree(source, device, update=1)
 
 
+@main.command(cls=DeviceCommand)
+@click.option(
+    "-D",
+    "--dest",
+    default="src",
+    required=True,
+    type=click.Path(exists=True, file_okay=False, readable=True),
+    help='Destination directory. Defaults to "src".',
+)
+def sync(device: str, dest: str) -> None:
+    """Copy the device directory to the source directory.
+
+    This will overwrite files in dest without prompting and without backup so use
+    with caution.
+    """
+    require_device(device)
+
+    logger.info(f"Copying {device} to {dest}")
+    copy_tree(device, dest)
+
+
 def find_device() -> Optional[str]:
     """Return the location on the filesystem for the connected CircuitPython device.
 

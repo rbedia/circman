@@ -47,7 +47,7 @@ Connect your CircuitPython device to your computer using USB and wait for the
 mount to appear.
 
 Change to the directory of your CircuitPython project. The default is for the
-project source code to be in "src/" relative to the project directory.
+project source code to be in **src/** relative to the project directory.
 
 Then run the deploy.
 
@@ -67,6 +67,16 @@ To list all available backups:
 
 ```console
 $ circman list
+```
+
+If you made a change directly on the CircuitPython device you can copy it back
+to the project source directory. The default destination directory is **src/**.
+No backup of the destination is created prior to copying so use with caution.
+Ideally the destination directory is under version control to identify changes and
+restore if needed.
+
+```console
+$ circman sync
 ```
 
 ## Usage

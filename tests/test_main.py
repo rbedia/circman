@@ -181,6 +181,17 @@ def test_deploy_success(
         mock_copy.assert_called_with("src", DEST_DIR, update=1)
 
 
+def test_sync_success(
+    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
+) -> None:
+    with mock.patch("circman.__main__.copy_tree") as mock_copy:
+        result = runner.invoke(__main__.main, ["sync", "-d", DEST_DIR])
+        assert result.exit_code == 0
+        assert "Copying" in caplog.text
+
+        mock_copy.assert_called_with(DEST_DIR, "src")
+
+
 @pytest.fixture
 def mock_dir(runner: CliRunner, tmp_path: Path) -> Iterator[str]:
     with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
