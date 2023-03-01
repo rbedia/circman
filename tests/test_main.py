@@ -1,6 +1,7 @@
 """Test cases for the __main__ module."""
 import os
 from pathlib import Path
+from typing import Iterator
 from typing import Tuple
 from unittest import mock
 
@@ -81,49 +82,36 @@ def test_find_device_unknown_os() -> None:
 
 
 def test_list_no_backups(
-    runner: CliRunner, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
 ) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", td
-    ):
-        result = runner.invoke(__main__.main, "list")
-        assert result.exit_code == 0
-        assert caplog.messages == ["Backups:"]
+    result = runner.invoke(__main__.main, "list")
+    assert result.exit_code == 0
+    assert caplog.messages == ["Backups:"]
 
 
 def test_list_show_backups(
-    runner: CliRunner, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    runner: CliRunner,
+    mock_dir: str,
+    mock_backups: Tuple[str, str],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
-    ):
-        make_mock_directories(td)
-        backup1, backup2 = make_mock_backups(td)
-
-        result = runner.invoke(__main__.main, "list")
-        assert result.exit_code == 0
-        assert "Backups:" in caplog.text
-        assert backup1 in caplog.text
-        assert backup2 in caplog.text
+    result = runner.invoke(__main__.main, "list")
+    assert result.exit_code == 0
+    assert "Backups:" in caplog.text
+    assert mock_backups[0] in caplog.text
+    assert mock_backups[1] in caplog.text
 
 
-def test_restore_no_device(runner: CliRunner, tmp_path: Path) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
-    ):
-        result = runner.invoke(__main__.main, "restore")
-        assert result.exit_code == 2
-        assert "Error: Missing option '-d' / '--device'." in result.output
+def test_restore_no_device(runner: CliRunner, mock_dir: str) -> None:
+    result = runner.invoke(__main__.main, "restore")
+    assert result.exit_code == 2
+    assert "Error: Missing option '-d' / '--device'." in result.output
 
 
 def test_restore_no_backups(
-    runner: CliRunner, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
 ) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
-    ), mock.patch("shutil.unpack_archive") as mock_unpack:
-        make_mock_directories(td)
-
+    with mock.patch("shutil.unpack_archive") as mock_unpack:
         result = runner.invoke(__main__.main, ["restore", "-d", DEST_DIR])
         assert result.exit_code == 1
         assert "No backup found to restore." in caplog.text
@@ -132,14 +120,12 @@ def test_restore_no_backups(
 
 
 def test_restore_backup_not_found(
-    runner: CliRunner, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    runner: CliRunner,
+    mock_dir: str,
+    mock_backups: Tuple[str, str],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
-    ), mock.patch("shutil.unpack_archive") as mock_unpack:
-        make_mock_directories(td)
-        make_mock_backups(td)
-
+    with mock.patch("shutil.unpack_archive") as mock_unpack:
         result = runner.invoke(__main__.main, ["restore", "-d", DEST_DIR, "-a", "3"])
         assert result.exit_code == 1
         assert "Backup not found." in caplog.text
@@ -148,47 +134,43 @@ def test_restore_backup_not_found(
 
 
 def test_restore_success(
-    runner: CliRunner, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    runner: CliRunner,
+    mock_dir: str,
+    mock_backups: Tuple[str, str],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
-    ), mock.patch("shutil.unpack_archive") as mock_unpack:
-        make_mock_directories(td)
-        _, backup2 = make_mock_backups(td)
-
+    with mock.patch("shutil.unpack_archive") as mock_unpack:
         result = runner.invoke(__main__.main, ["restore", "-d", DEST_DIR])
         assert result.exit_code == 0
         assert "Restoring" in caplog.text
 
-        mock_unpack.assert_called_with(f"{td}/{BACKUP_DIR}/{backup2}", DEST_DIR)
+        mock_unpack.assert_called_with(
+            f"{mock_dir}/{BACKUP_DIR}/{mock_backups[1]}", DEST_DIR
+        )
 
 
 def test_restore_success_older(
-    runner: CliRunner, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    runner: CliRunner,
+    mock_dir: str,
+    mock_backups: Tuple[str, str],
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
-    ), mock.patch("shutil.unpack_archive") as mock_unpack:
-        make_mock_directories(td)
-        backup1, _ = make_mock_backups(td)
-
+    with mock.patch("shutil.unpack_archive") as mock_unpack:
         result = runner.invoke(__main__.main, ["restore", "-d", DEST_DIR, "-a", "2"])
         assert result.exit_code == 0
         assert "Restoring" in caplog.text
 
-        mock_unpack.assert_called_with(f"{td}/{BACKUP_DIR}/{backup1}", DEST_DIR)
+        mock_unpack.assert_called_with(
+            f"{mock_dir}/{BACKUP_DIR}/{mock_backups[0]}", DEST_DIR
+        )
 
 
 def test_deploy_success(
-    runner: CliRunner, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
 ) -> None:
-    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
-    ), mock.patch("shutil.make_archive") as mock_archive, mock.patch(
+    with mock.patch("shutil.make_archive") as mock_archive, mock.patch(
         "circman.__main__.copy_tree"
     ) as mock_copy:
-        make_mock_directories(td)
-
         result = runner.invoke(__main__.main, ["deploy", "-d", DEST_DIR])
         assert result.exit_code == 0
         assert "Archiving" in caplog.text
@@ -198,16 +180,23 @@ def test_deploy_success(
         mock_copy.assert_called_with("src", DEST_DIR, update=1)
 
 
-def make_mock_directories(td: str) -> None:
-    os.makedirs(f"{td}/{DEST_DIR}")
-    os.makedirs(f"{td}/{SRC_DIR}")
-    os.makedirs(f"{td}/{BACKUP_DIR}")
+@pytest.fixture
+def mock_dir(runner: CliRunner, tmp_path: Path) -> Iterator[str]:
+    with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
+        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
+    ):
+        os.makedirs(f"{td}/{DEST_DIR}")
+        os.makedirs(f"{td}/{SRC_DIR}")
+        os.makedirs(f"{td}/{BACKUP_DIR}")
+        yield td
 
 
-def make_mock_backups(td: str) -> Tuple[str, str]:
+@pytest.fixture
+def mock_backups(mock_dir: str) -> Tuple[str, str]:
     backups = ("archive-20230224_034752.tar.bz2", "archive-20230227_101709.tar.bz2")
 
+    # Create empty files
     for backup in backups:
-        open(f"{td}/{BACKUP_DIR}/{backup}", "a").close()
+        open(f"{mock_dir}/{BACKUP_DIR}/{backup}", "a").close()
 
     return backups
