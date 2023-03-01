@@ -44,32 +44,6 @@ logger.addHandler(logfile_handler)
 logger.addHandler(logging.StreamHandler())
 
 
-def find_device() -> Optional[str]:
-    """Return the location on the filesystem for the connected CircuitPython device.
-
-    This is based upon how Mu discovers this information.
-    :return: The path to the device on the local filesystem.
-    """
-    device_dir = None
-    # Attempt to find the path on the filesystem that represents the plugged in
-    # CIRCUITPY board.
-    if os.name == "posix":
-        # Linux / OSX
-        for mount_command in ["mount", "/sbin/mount"]:
-            try:
-                mount_output = check_output(mount_command).splitlines()  # noqa: S603
-                mounted_volumes = [x.split()[2] for x in mount_output]
-                for volume in mounted_volumes:
-                    if volume.endswith(b"CIRCUITPY"):
-                        device_dir = volume.decode("utf-8")
-            except FileNotFoundError:
-                continue
-    else:
-        # No support for unknown operating systems.
-        raise NotImplementedError(f"OS {os.name!r} not supported.")
-    return device_dir
-
-
 class DeviceCommand(click.Command):
     """Options shared by commands that need a valid device."""
 
@@ -82,7 +56,7 @@ class DeviceCommand(click.Command):
                 ("-d", "--device"),
                 required=True,
                 type=click.Path(exists=True, file_okay=False, writable=True),
-                default=find_device(),
+                default=lambda: find_device(),
                 help="CIRCUITPY path. If not provided, autodiscovery is attempted.",
             ),
         )
@@ -125,6 +99,8 @@ def list() -> None:
 )
 def restore(device: str, archive: int) -> None:
     """Restore a backup."""
+    require_device(device)
+
     archive_files = find_archive_files()
     if not archive_files:
         logger.error("No backup found to restore.")
@@ -167,9 +143,43 @@ def backup(device: str) -> None:
 )
 def deploy(device: str, source: str) -> None:
     """Copy the source directory to the device directory."""
+    require_device(device)
+
     backup(device)
     logger.info(f"Deploying {source} to {device}")
     copy_tree(source, device, update=1)
+
+
+def find_device() -> Optional[str]:
+    """Return the location on the filesystem for the connected CircuitPython device.
+
+    This is based upon how Mu discovers this information.
+    :return: The path to the device on the local filesystem.
+    """
+    device_dir = None
+    # Attempt to find the path on the filesystem that represents the plugged in
+    # CIRCUITPY board.
+    if os.name == "posix":
+        # Linux / OSX
+        for mount_command in ["mount", "/sbin/mount"]:
+            try:
+                mount_output = check_output(mount_command).splitlines()  # noqa: S603
+                mounted_volumes = [x.split()[2] for x in mount_output]
+                for volume in mounted_volumes:
+                    if volume.endswith(b"CIRCUITPY"):
+                        device_dir = volume.decode("utf-8")
+            except FileNotFoundError:
+                continue
+    else:
+        # No support for unknown operating systems.
+        raise NotImplementedError(f"OS {os.name!r} not supported.")
+    return device_dir
+
+
+def require_device(device: Optional[str]) -> None:
+    """Exit if device doesn't have a value."""
+    if not device:
+        sys.exit(2)  # pragma: no cover
 
 
 if __name__ == "__main__":
