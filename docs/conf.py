@@ -1,4 +1,5 @@
 """Sphinx configuration."""
+
 project = "CircuitPython Manager"
 author = "Rafael Bedia"
 copyright = "2023, Rafael Bedia"
