@@ -1,0 +1,5 @@
+security:
+  ignore-vulnerabilities:
+    70612:
+      reason: We are not impacted by this vulnerability
+      expires: "2025-06-01"
