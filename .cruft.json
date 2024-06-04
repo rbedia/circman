@@ -1,0 +1,21 @@
+{
+  "template": "https://github.com/rbedia/cookiecutter-hypermodern-python",
+  "commit": "48c233b36f7eb49a484927245e2c90c7f5d3d116",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "circman",
+      "package_name": "circman",
+      "friendly_name": "CircuitPython Manager",
+      "author": "Rafael Bedia",
+      "email": "rafael.bedia@gmail.com",
+      "github_user": "rbedia",
+      "version": "0.3.0",
+      "copyright_year": "2023",
+      "license": "MIT",
+      "development_status": "Development Status :: 4 - Beta",
+      "_template": "https://github.com/rbedia/cookiecutter-hypermodern-python"
+    }
+  },
+  "directory": null
+}
