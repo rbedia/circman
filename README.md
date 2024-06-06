@@ -1,8 +1,8 @@
 # CircuitPython Manager
 
-[![PyPI](https://img.shields.io/pypi/v/circman.svg)][pypi_]
-[![Status](https://img.shields.io/pypi/status/circman.svg)][status]
-[![Python Version](https://img.shields.io/pypi/pyversions/circman)][python version]
+[![PyPI](https://img.shields.io/pypi/v/circman.svg)][pypi status]
+[![Status](https://img.shields.io/pypi/status/circman.svg)][pypi status]
+[![Python Version](https://img.shields.io/pypi/pyversions/circman)][pypi status]
 [![License](https://img.shields.io/pypi/l/circman)][license]
 
 [![Read the documentation at https://circman.readthedocs.io/](https://img.shields.io/readthedocs/circman/latest.svg?label=Read%20the%20Docs)][read the docs]
@@ -12,9 +12,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)][pre-commit]
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)][black]
 
-[pypi_]: https://pypi.org/project/circman/
-[status]: https://pypi.org/project/circman/
-[python version]: https://pypi.org/project/circman
+[pypi status]: https://pypi.org/project/circman/
 [read the docs]: https://circman.readthedocs.io/
 [tests]: https://github.com/rbedia/circman/actions?workflow=Tests
 [codecov]: https://app.codecov.io/gh/rbedia/circman
@@ -102,12 +100,12 @@ please [file an issue] along with a detailed description.
 
 Device path detection code (`find_device()`) was copied from Adafruit's [circup] project.
 
-This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
+This project was generated from [@rbedia]'s [Hypermodern Python Cookiecutter] template.
 
 [circup]: https://github.com/adafruit/circup
-[@cjolowicz]: https://github.com/cjolowicz
+[@rbedia]: https://github.com/rbedia
 [pypi]: https://pypi.org/
-[hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
+[hypermodern python cookiecutter]: https://github.com/rbedia/cookiecutter-hypermodern-python
 [file an issue]: https://github.com/rbedia/circman/issues
 [pip]: https://pip.pypa.io/
 

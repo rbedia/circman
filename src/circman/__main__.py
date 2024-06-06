@@ -1,14 +1,13 @@
 """Command-line interface."""
 
 import datetime
-import glob
 import logging
 import os
 import shutil
 import sys
 from distutils.dir_util import copy_tree
 from pathlib import Path
-from subprocess import check_output  # noqa: S404
+from subprocess import check_output
 from typing import Any
 from typing import List
 from typing import Optional
@@ -16,22 +15,20 @@ from typing import Optional
 import click
 import platformdirs
 
-
 appname = "circman"
 appauthor = "circman"
 
-DATA_DIR = platformdirs.user_data_dir(appname=appname, appauthor=appauthor)
-LOG_DIR = platformdirs.user_log_dir(appname=appname, appauthor=appauthor)
+DATA_DIR = Path(platformdirs.user_data_dir(appname=appname, appauthor=appauthor))
+LOG_DIR = Path(platformdirs.user_log_dir(appname=appname, appauthor=appauthor))
 #: The location of the log file for the utility.
-LOGFILE = os.path.join(LOG_DIR, "circman.log")
-
-BACKUP_DIR = os.path.join(DATA_DIR, "archives")
+LOGFILE = LOG_DIR / "circman.log"
+BACKUP_DIR = DATA_DIR / "archives"
 
 # Ensure BACKUP_DIR / LOG_DIR related directories and files exist.
-if not os.path.exists(BACKUP_DIR):  # pragma: no cover
-    os.makedirs(BACKUP_DIR)
-if not os.path.exists(LOG_DIR):  # pragma: no cover
-    os.makedirs(LOG_DIR)
+if not BACKUP_DIR.exists():  # pragma: no cover
+    BACKUP_DIR.mkdir(parents=True)
+if not LOG_DIR.exists():  # pragma: no cover
+    LOG_DIR.mkdir(parents=True)
 
 # Setup logging.
 logger = logging.getLogger(__name__)
@@ -70,7 +67,7 @@ def main() -> None:
 
 
 @main.command()
-def list() -> None:
+def list() -> None:  # noqa: A001
     """List backups that can be restored."""
     recent_back_limit = 5
     archive_files = find_archive_files()
@@ -82,7 +79,7 @@ def list() -> None:
         file_path = Path(archive)
         file_name = file_path.name
         mtime = file_path.stat().st_mtime
-        mtime_dt = datetime.datetime.fromtimestamp(mtime)
+        mtime_dt = datetime.datetime.fromtimestamp(mtime, tz=datetime.timezone.utc)
         logger.info(
             f"{recent_files_count - index} - {mtime_dt:%Y-%m-%d %H:%M:%S} - {file_name}"
         )
@@ -119,18 +116,18 @@ def restore(device: str, archive: int) -> None:
     shutil.unpack_archive(archive_file, device)
 
 
-def find_archive_files() -> List[str]:
+def find_archive_files() -> List[Path]:
     """Find archives in the backup directory, sorted alphabetically."""
-    return sorted(glob.glob(glob.escape(BACKUP_DIR) + "/*.tar.bz2"))
+    return sorted(BACKUP_DIR.glob("*.tar.bz2"), key=lambda x: str(x))
 
 
 def backup(device: str) -> None:
     """Backup up the device directory."""
-    now = datetime.datetime.now()
-    archive_file = os.path.join(BACKUP_DIR, f"archive-{now:%Y%m%d_%H%M%S}")
+    now = datetime.datetime.now(datetime.timezone.utc)
+    archive_file = BACKUP_DIR / f"archive-{now:%Y%m%d_%H%M%S}"
 
     logger.info(f"Archiving to {archive_file}.tar.bz2")
-    shutil.make_archive(archive_file, "bztar", device, ".")
+    shutil.make_archive(str(archive_file), "bztar", device, ".")
 
 
 @main.command(cls=DeviceCommand)

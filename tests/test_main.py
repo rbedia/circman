@@ -1,6 +1,5 @@
 """Test cases for the __main__ module."""
 
-import os
 from pathlib import Path
 from typing import Iterator
 from typing import Tuple
@@ -11,7 +10,6 @@ from click.testing import CliRunner
 
 from circman import __main__
 
-
 BACKUP_DIR = "backups"
 DEST_DIR = "dest"
 SRC_DIR = "src"
@@ -20,7 +18,7 @@ SRC_DIR = "src"
 __main__.logger.removeHandler(__main__.logfile_handler)
 
 
-@pytest.fixture
+@pytest.fixture()
 def runner() -> Iterator[CliRunner]:
     """Fixture for invoking command-line interfaces."""
     with mock.patch("circman.__main__.find_device", return_value=None):
@@ -38,11 +36,12 @@ def test_find_device_posix_exists() -> None:
     Simulate being on os.name == 'posix' and a call to "mount" returns a
     record indicating a connected device.
     """
-    with open("tests/mount_exists.txt", "rb") as fixture_file:
+    with Path("tests/mount_exists.txt").open("rb") as fixture_file:
         fixture = fixture_file.read()
-        with mock.patch("os.name", "posix"):
-            with mock.patch("circman.__main__.check_output", return_value=fixture):
-                assert __main__.find_device() == "/media/ntoll/CIRCUITPY"
+        with mock.patch("os.name", "posix"), mock.patch(
+            "circman.__main__.check_output", return_value=fixture
+        ):
+            assert __main__.find_device() == "/media/ntoll/CIRCUITPY"
 
 
 def test_find_device_posix_no_mount_command() -> None:
@@ -51,7 +50,7 @@ def test_find_device_posix_no_mount_command() -> None:
     command isn't on their path. In which case, check circup uses the more
     explicit /sbin/mount instead.
     """
-    with open("tests/mount_exists.txt", "rb") as fixture_file:
+    with Path("tests/mount_exists.txt").open("rb") as fixture_file:
         fixture = fixture_file.read()
     mock_check = mock.MagicMock(side_effect=[FileNotFoundError, fixture])
     with mock.patch("os.name", "posix"), mock.patch(
@@ -68,7 +67,7 @@ def test_find_device_posix_missing() -> None:
     Simulate being on os.name == 'posix' and a call to "mount" returns no
     records associated with an Adafruit device.
     """
-    with open("tests/mount_missing.txt", "rb") as fixture_file:
+    with Path("tests/mount_missing.txt").open("rb") as fixture_file:
         fixture = fixture_file.read()
         with mock.patch("os.name", "posix"), mock.patch(
             "circman.__main__.check_output", return_value=fixture
@@ -77,26 +76,22 @@ def test_find_device_posix_missing() -> None:
 
 
 def test_find_device_unknown_os() -> None:
-    """
-    Raises a NotImplementedError if the host OS is not supported.
-    """
-    with mock.patch("os.name", "foo"):
-        with pytest.raises(NotImplementedError) as ex:
-            __main__.find_device()
+    """Raises a NotImplementedError if the host OS is not supported."""
+    with mock.patch("os.name", "foo"), pytest.raises(NotImplementedError) as ex:
+        __main__.find_device()
     assert ex.value.args[0] == "OS 'foo' not supported."
 
 
-def test_list_no_backups(
-    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
-) -> None:
+@pytest.mark.usefixtures("mock_dir")
+def test_list_no_backups(runner: CliRunner, caplog: pytest.LogCaptureFixture) -> None:
     result = runner.invoke(__main__.main, "list")
     assert result.exit_code == 0
     assert caplog.messages == ["Backups:"]
 
 
+@pytest.mark.usefixtures("mock_dir")
 def test_list_show_backups(
     runner: CliRunner,
-    mock_dir: str,
     mock_backups: Tuple[str, str],
     caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -107,14 +102,16 @@ def test_list_show_backups(
     assert mock_backups[1] in caplog.text
 
 
-def test_restore_no_device(runner: CliRunner, mock_dir: str) -> None:
+@pytest.mark.usefixtures("mock_dir")
+def test_restore_no_device(runner: CliRunner) -> None:
     result = runner.invoke(__main__.main, "restore")
     assert result.exit_code == 2
     assert "Error: Missing option '-d' / '--device'." in result.output
 
 
+@pytest.mark.usefixtures("mock_dir")
 def test_restore_no_backups(
-    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
+    runner: CliRunner, caplog: pytest.LogCaptureFixture
 ) -> None:
     with mock.patch("shutil.unpack_archive") as mock_unpack:
         result = runner.invoke(__main__.main, ["restore", "-d", DEST_DIR])
@@ -124,10 +121,9 @@ def test_restore_no_backups(
         mock_unpack.assert_not_called()
 
 
+@pytest.mark.usefixtures("mock_dir", "mock_backups")
 def test_restore_backup_not_found(
     runner: CliRunner,
-    mock_dir: str,
-    mock_backups: Tuple[str, str],
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     with mock.patch("shutil.unpack_archive") as mock_unpack:
@@ -150,7 +146,7 @@ def test_restore_success(
         assert "Restoring" in caplog.text
 
         mock_unpack.assert_called_with(
-            f"{mock_dir}/{BACKUP_DIR}/{mock_backups[1]}", DEST_DIR
+            Path(f"{mock_dir}/{BACKUP_DIR}/{mock_backups[1]}"), DEST_DIR
         )
 
 
@@ -166,13 +162,12 @@ def test_restore_success_older(
         assert "Restoring" in caplog.text
 
         mock_unpack.assert_called_with(
-            f"{mock_dir}/{BACKUP_DIR}/{mock_backups[0]}", DEST_DIR
+            Path(f"{mock_dir}/{BACKUP_DIR}/{mock_backups[0]}"), DEST_DIR
         )
 
 
-def test_deploy_success(
-    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
-) -> None:
+@pytest.mark.usefixtures("mock_dir")
+def test_deploy_success(runner: CliRunner, caplog: pytest.LogCaptureFixture) -> None:
     with mock.patch("shutil.make_archive") as mock_archive, mock.patch(
         "circman.__main__.copy_tree"
     ) as mock_copy:
@@ -185,9 +180,8 @@ def test_deploy_success(
         mock_copy.assert_called_with("src", DEST_DIR, update=1)
 
 
-def test_sync_success(
-    runner: CliRunner, mock_dir: str, caplog: pytest.LogCaptureFixture
-) -> None:
+@pytest.mark.usefixtures("mock_dir")
+def test_sync_success(runner: CliRunner, caplog: pytest.LogCaptureFixture) -> None:
     with mock.patch("circman.__main__.copy_tree") as mock_copy:
         result = runner.invoke(__main__.main, ["sync", "-d", DEST_DIR])
         assert result.exit_code == 0
@@ -196,23 +190,24 @@ def test_sync_success(
         mock_copy.assert_called_with(DEST_DIR, "src")
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_dir(runner: CliRunner, tmp_path: Path) -> Iterator[str]:
     with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
-        "circman.__main__.BACKUP_DIR", f"{td}/{BACKUP_DIR}"
+        "circman.__main__.BACKUP_DIR", Path(f"{td}/{BACKUP_DIR}")
     ):
-        os.makedirs(f"{td}/{DEST_DIR}")
-        os.makedirs(f"{td}/{SRC_DIR}")
-        os.makedirs(f"{td}/{BACKUP_DIR}")
+        test_dirs = [DEST_DIR, SRC_DIR, BACKUP_DIR]
+        root = Path(td)
+        for temp_dir in test_dirs:
+            (root / temp_dir).mkdir(parents=True)
         yield td
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_backups(mock_dir: str) -> Tuple[str, str]:
     backups = ("archive-20230224_034752.tar.bz2", "archive-20230227_101709.tar.bz2")
 
     # Create empty files
     for backup in backups:
-        open(f"{mock_dir}/{BACKUP_DIR}/{backup}", "a").close()
+        Path(f"{mock_dir}/{BACKUP_DIR}/{backup}").touch()
 
     return backups
