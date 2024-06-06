@@ -18,8 +18,8 @@ import platformdirs
 appname = "circman"
 appauthor = "circman"
 
-DATA_DIR = Path(platformdirs.user_data_dir(appname=appname, appauthor=appauthor))
-LOG_DIR = Path(platformdirs.user_log_dir(appname=appname, appauthor=appauthor))
+DATA_DIR = platformdirs.user_data_path(appname=appname, appauthor=appauthor)
+LOG_DIR = platformdirs.user_log_path(appname=appname, appauthor=appauthor)
 #: The location of the log file for the utility.
 LOGFILE = LOG_DIR / "circman.log"
 BACKUP_DIR = DATA_DIR / "archives"
