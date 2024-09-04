@@ -18,7 +18,7 @@ SRC_DIR = "src"
 __main__.logger.removeHandler(__main__.logfile_handler)
 
 
-@pytest.fixture()
+@pytest.fixture
 def runner() -> Iterator[CliRunner]:
     """Fixture for invoking command-line interfaces."""
     with mock.patch("circman.__main__.find_device", return_value=None):
@@ -190,7 +190,7 @@ def test_sync_success(runner: CliRunner, caplog: pytest.LogCaptureFixture) -> No
         mock_copy.assert_called_with(DEST_DIR, "src")
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_dir(runner: CliRunner, tmp_path: Path) -> Iterator[str]:
     with runner.isolated_filesystem(temp_dir=tmp_path) as td, mock.patch(
         "circman.__main__.BACKUP_DIR", Path(f"{td}/{BACKUP_DIR}")
@@ -202,7 +202,7 @@ def mock_dir(runner: CliRunner, tmp_path: Path) -> Iterator[str]:
         yield td
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_backups(mock_dir: str) -> Tuple[str, str]:
     backups = ("archive-20230224_034752.tar.bz2", "archive-20230227_101709.tar.bz2")
 
