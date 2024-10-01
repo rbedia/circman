@@ -19,7 +19,7 @@ Changelog = "https://github.com/rbedia/circman/releases"
 python = "^3.8"
 click = ">=8.0.1"
 setuptools = ">=74.1.1"
-platformdirs = "^3.0.0"
+platformdirs = ">=3.0.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=6.2.5"
