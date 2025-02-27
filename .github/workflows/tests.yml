@@ -70,7 +70,8 @@ jobs:
       - name: Install Nox
         run: |
           pipx install --pip-args=--constraint=${{ github.workspace }}/.github/workflows/constraints.txt nox
-          pipx inject --pip-args=--constraint=${{ github.workspace }}/.github/workflows/constraints.txt nox nox-poetry poetry-plugin-export
+          pipx inject --pip-args=--constraint=${{ github.workspace }}/.github/workflows/constraints.txt nox nox-poetry
+          pipx inject --pip-args=--constraint=${{ github.workspace }}/.github/workflows/constraints.txt nox poetry-plugin-export
           nox --version
 
       - name: Compute pre-commit cache key
