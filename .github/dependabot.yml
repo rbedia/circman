@@ -5,22 +5,22 @@ updates:
     schedule:
       interval: monthly
     groups:
-      gh-action-dependencies:
-        applies-to: version-updates
+      gh-action:
+        dependency-type: production
   - package-ecosystem: pip
     directory: "/.github/workflows"
     schedule:
       interval: monthly
     groups:
-      python-workflow-dependencies:
-        applies-to: version-updates
+      python-workflow:
+        dependency-type: production
   - package-ecosystem: pip
     directory: "/docs"
     schedule:
       interval: monthly
     groups:
-      docs-dependencies:
-        applies-to: version-updates
+      docs:
+        dependency-type: production
   - package-ecosystem: pip
     directory: "/"
     schedule:
@@ -29,5 +29,7 @@ updates:
     allow:
       - dependency-type: "all"
     groups:
-      poetry-dependencies:
-        applies-to: version-updates
+      poetry-prod:
+        dependency-type: production
+      poetry-dev:
+        dependency-type: development
