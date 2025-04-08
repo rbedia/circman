@@ -19,7 +19,7 @@ Changelog = "https://github.com/rbedia/circman/releases"
 poetry-plugin-export = ">=1.8"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8,<3.13"
 click = ">=8.0.1"
 setuptools = ">=74.1.1"
 platformdirs = ">=3.0.0"
@@ -32,6 +32,7 @@ xdoctest = {extras = ["colors"], version = ">=0.15.10"}
 [tool.poetry.group.dev.dependencies]
 Pygments = ">=2.10.0"
 black = "*"
+codespell = ">=2.4.1"
 darglint = ">=1.8.1"
 mypy = "*"
 pep8-naming = ">=0.12.1"
@@ -100,6 +101,9 @@ lint.select = [
   'TCH',
   'UP',
   'W',
+]
+lint.ignore = [
+  'D107',  # __init__ documentation is stored in the class docstring
 ]
 target-version = 'py38'
 

@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/rbedia/cookiecutter-hypermodern-python",
-  "commit": "c921c39d5fec8f0fe7fd2c878d7381dce550ed00",
+  "commit": "a8f2da4abc41c3e285bbce30c448802e20dc1bfe",
   "checkout": null,
   "context": {
     "cookiecutter": {
